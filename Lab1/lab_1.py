@@ -2,9 +2,32 @@ import csv
 import numpy as np
 import pandas as pd
 from scipy import spatial
+from sklearn.metrics import jaccard_similarity_score
 
 import csv
 
+
+def similarity(rowA, rowB):
+    bin1 = []
+    cat1 = []
+    etc1 = []
+    bin2 = []
+    cat2 = []
+    etc2 = []
+    for key in rowA.keys():
+        if str(key[-3:]) == "cat":
+            cat1.append(rowA[key])
+            cat2.append(rowB[key])
+        elif str(key[-3:]) == "bin":
+            bin1.append(rowA[key])
+            bin2.append(rowB[key])
+        else:
+            etc1.append(rowA[key])
+            etc2.append(rowB[key])
+    cosSim = 1 - spatial.distance.cosine(cat1, cat2)
+    binSim = jaccard_similarity_score(bin1, bin2)
+    etcSim = 1 - spatial.distance.cosine(cat1, cat2)
+    return (cosSim + binSim + etcSim)/3
 
 def main():
     #load data
@@ -62,6 +85,10 @@ def main():
     #product of their magnitude
 
     print "question 3:\n"
+    rowA = data.iloc[1]
+    rowB = data.iloc[2]
+    print "\tsimilarity between rows 1 and 2 is: " + str(similarity(rowA, rowB))
+    #similarity(rowA, rowb)
 
     #answer to question 4
     #How many features contain missing values?
@@ -79,7 +106,18 @@ def main():
         if -1 in list(temp.keys()):
             print "\t\t" + str(column) + "\t" + str(temp[-1])
             counter += 1
-    print "\n\tin summation " + str(counter) + " features are missing values"
+    print "\n\tin summary " + str(counter) + " features are missing values"
+
+    #answer to question 5
+    #Please fill in the missing values, and briefly describe your approach.
+
+    #we will be replacing the missing values with the mean or mode of
+    #of their respective column
+
+    #this doesnt seem to be working right now
+    data.replace(-1,np.NaN)
+    data.replace(float(-1), np.NaN)
+
     # Code goes over here.
     return 0
 

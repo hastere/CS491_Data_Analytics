@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy import spatial
 from sklearn.metrics import jaccard_similarity_score
+from sklearn.decomposition import PCA
 
 import csv
 
@@ -24,14 +25,19 @@ def similarity(rowA, rowB):
         elif key != 'id' or key != 'target':
             etc1.append(rowA[key])
             etc2.append(rowB[key])
+    #shit
     cosSim = 1 - spatial.distance.cosine(cat1, cat2)
+    #good
     binSim = jaccard_similarity_score(bin1, bin2)
+    #shit???
     etcSim = 1 - spatial.distance.cosine(cat1, cat2)
     return (cosSim + binSim + etcSim)/3
 
 def main():
     #load data
     data = pd.read_csv('train.csv')
+    data = data.replace(-1,np.NaN)
+
     #result = np.array(x).astype("float")
 
     #Answer to question 1
@@ -121,10 +127,9 @@ def main():
     print "\tprinting column with missing values prior to replacement\n"
     print data['ps_ind_02_cat'].value_counts()
     print ""
-    data = data.replace(-1,np.NaN)
     for column in data.columns:
         if column[-3:] == 'cat':
-            data[column] = data[column].fillna(int(round(data[column].mean())))
+            data[column] = data[column].fillna(int(round(data[column].mode())))
         else:
             data[column] = data[column].fillna(data[column].mean())
     print "\tprinting column with missing values after replacement\n"
@@ -157,7 +162,9 @@ def main():
 
     print "question 7:\n"
 
-
+    pca = PCA(n_components=10)
+    pca.fit(data)
+    print pd.DataFrame(pca.transform(data), columns=['PCA%i' % i for i in range(10)], index=data.index)
 
     # Code goes over here.
     return 0

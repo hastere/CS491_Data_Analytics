@@ -4,39 +4,39 @@ import pandas as pd
 from scipy import spatial
 from sklearn.metrics import jaccard_similarity_score
 from sklearn.decomposition import PCA
-
+from sklearn.decomposition import KernelPCA
 import csv
 
 
 def similarity(rowA, rowB):
     bin1 = []
-    cat1 = []
     etc1 = []
     bin2 = []
-    cat2 = []
     etc2 = []
+    catCount = 0
     for key in rowA.keys():
         if str(key[-3:]) == "cat":
-            cat1.append(rowA[key])
-            cat2.append(rowB[key])
+            if rowA[key] == rowB[key]:
+                catCount += 1
         elif str(key[-3:]) == "bin":
             bin1.append(rowA[key])
             bin2.append(rowB[key])
         elif key != 'id' or key != 'target':
             etc1.append(rowA[key])
             etc2.append(rowB[key])
-    #shit
-    cosSim = 1 - spatial.distance.cosine(cat1, cat2)
-    #good
+    catSim = catCount / len(rowA)
     binSim = jaccard_similarity_score(bin1, bin2)
     #shit???
-    etcSim = 1 - spatial.distance.cosine(cat1, cat2)
-    return (cosSim + binSim + etcSim)/3
+    etcSim = 1 - spatial.distance.cosine(etc1, etc2)
+    return (catSim + binSim + etcSim)/3
 
 def main():
     #load data
     data = pd.read_csv('train.csv')
-    data = data.replace(-1,np.NaN)
+    #set cols to cat?
+    for column in data.columns:
+        if str(column[-3:]) == "cat":
+            data[column] = data[column].astype('category')
 
     #result = np.array(x).astype("float")
 
@@ -69,14 +69,11 @@ def main():
 
     print "\tthere are " + str(counter) + " nominal features\n"
 
-    print "printing counts of each catagory and their column name\n"
+    print "printing each nominal feature and their counts\n"
     for column in data.columns:
         if str(column[-3:]) == "cat" or str(column[-3:]) == "bin":
             print data[column].value_counts()
             print "\n"
-
-
-
 
     #answer to question 3
     #How would you compute similarity between feature vectors of any pair of samples (rows)?
@@ -94,7 +91,6 @@ def main():
     rowA = data.iloc[1]
     rowB = data.iloc[2]
     print "\tsimilarity between rows 1 and 2 is: " + str(similarity(rowA, rowB)) + "\n"
-    #similarity(rowA, rowb)
 
     #answer to question 4
     #How many features contain missing values?
@@ -117,21 +113,24 @@ def main():
     #answer to question 5
     #Please fill in the missing values, and briefly describe your approach.
 
-    #we will be replacing the missing values with the mean or mode of
-    #of their respective column. first, we will replace the -1 values with Nan
+    #we will be replacing the missing values with the mean or in the instance of categorical data,
+    #mode of their respective column. first, we will replace the -1 values with Nan
     #value in order to take advantage of the pandas function that replaces NaN
     #values. Then, we will compute the mean of the column, rounding it in the
     #event that it is a piece of catagorical data
 
     print "question 5:\n"
-    print "\tprinting column with missing values prior to replacement\n"
+    print "\tprinting column ps_ind_02_cat with missing values prior to replacement\n"
     print data['ps_ind_02_cat'].value_counts()
     print ""
+
+    data = data.replace(-1,np.NaN)
+
     for column in data.columns:
         if column[-3:] == 'cat':
-            data[column] = data[column].fillna(int(round(data[column].mode())))
+            data[column] = data[column].fillna(int(data[column].mode()))
         else:
-            data[column] = data[column].fillna(data[column].mean())
+            data[column] = data[column].fillna(float(data[column].mean()))
     print "\tprinting column with missing values after replacement\n"
     print data['ps_ind_02_cat'].value_counts()
     print ""
@@ -164,6 +163,8 @@ def main():
 
     pca = PCA(n_components=10)
     pca.fit(data)
+
+    print "\n\t\t\tpca\n"
     print pd.DataFrame(pca.transform(data), columns=['PCA%i' % i for i in range(10)], index=data.index)
 
     # Code goes over here.

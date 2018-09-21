@@ -4,7 +4,8 @@ import pandas as pd
 from scipy import spatial
 from sklearn.metrics import jaccard_similarity_score
 from sklearn.decomposition import PCA
-from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import LabelBinarizer
+
 import csv
 
 
@@ -162,11 +163,28 @@ def main():
     print "question 7:\n"
 
     pca = PCA(n_components=10)
-    pca.fit(data)
+    pcaData = pd.DataFrame()
 
-    print "\n\t\t\tpca\n"
-    print pd.DataFrame(pca.transform(data), columns=['PCA%i' % i for i in range(10)], index=data.index)
-
+    #one-thot the cat features
+    for column in data.columns:
+        if column[-3:] == 'cat':
+            lb_style = LabelBinarizer()
+            lb_results = lb_style.fit_transform(data[column])
+            lb_table = pd.DataFrame(lb_results)
+            lb_table.rename(columns=lambda x: column + "-" + str(x), inplace=True)
+            #pcaData = pd.concat([pcaData,lb_table])
+            #print pd.DataFrame(lb_table)
+            pcaData = pcaData.join(lb_table)
+        else:
+            pcaData[column] = data[column]
+    #run pca
+    x = pcaData.drop(pcaData.columns[[0,1]], axis=1)
+    pca.fit(x)
+    finalDataFrame = pd.DataFrame()
+    finalDataFrame['id'] = pcaData['id']
+    finalDataFrame['target'] = pcaData['target']
+    finalDataFrame = finalDataFrame.join(pd.DataFrame(pca.transform(x), columns=['PCA%i' % i for i in range(10)], index=x.index))
+    print finalDataFrame
     # Code goes over here.
     return 0
 

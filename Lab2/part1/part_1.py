@@ -116,8 +116,6 @@ def main():
     print "again, testing on the training data results in perfect classification"
     print "of training data, as the model is based off of the test data. The test"
     print "data is different, which exposes some errors in prediction"
-        
-
 
 
     return 0

@@ -13,6 +13,7 @@ def main():
     #load data
     train = pd.read_csv('train.csv')
     test = pd.read_csv('test.csv')
+
     trainTarget = train["target"]
     trainFeatureNames = list(train.columns[3:])
     trainFeatures = train[trainFeatureNames]
@@ -20,7 +21,7 @@ def main():
     testFeatureNames = list(test.columns[3:])
     testFeatures = test[testFeatureNames]
     #TODO catagorical columns should be converted to catagorical type
-    dataTree = tree.DecisionTreeClassifier(max_depth = 10)
+    dataTree = tree.DecisionTreeClassifier(min_samples_split = 20, max_depth = 15, random_state = 69)
     dataTree = dataTree.fit(trainFeatures, trainTarget)
     testPrediction = dataTree.predict(testFeatures)
     trainPrediction = dataTree.predict(trainFeatures)
@@ -72,7 +73,7 @@ def main():
     print "performance"
 
     print "\nNow using RandomForestClassifier as a model"
-    randomForest =  RandomForestClassifier(n_estimators = 10, random_state = 42)
+    randomForest =  RandomForestClassifier(n_estimators = 2, random_state = 69)
     randomForest.fit(trainFeatures, trainTarget);
     predictionTest = randomForest.predict(test[list(test.columns[3:])])
     predictionTrain = randomForest.predict(trainFeatures)

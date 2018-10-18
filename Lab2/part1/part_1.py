@@ -6,19 +6,44 @@ from sklearn import tree
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelBinarizer
 
 
 
 def main():
     #load data
-    train = pd.read_csv('train.csv')
-    test = pd.read_csv('test.csv')
+    trainInput = pd.read_csv('train.csv')
+    testInput = pd.read_csv('test.csv')
+
+    #need to preprocess via one-hot encoding of categorical variables.
+    #unlike in r, sklearn's decision trees/random forests do not handle catagorical
+    #data well
+    train = pd.DataFrame()
+    test = pd.DataFrame()
+
+
+    for column in trainInput.columns:
+        if column[-3:] == 'cat':
+            lb_style = LabelBinarizer()
+            lb_results_train = lb_style.fit_transform(trainInput[column])
+            lb_results_test = lb_style.fit_transform(testInput[column])
+            lb_table_train = pd.DataFrame(lb_results_train)
+            lb_table_test = pd.DataFrame(lb_results_test)
+            lb_table_train.rename(columns=lambda x: column + "-" + str(x), inplace=True)
+            lb_table_test.rename(columns=lambda x: column + "-" + str(x), inplace=True)
+            train = train.join(lb_table_train)
+            test = test.join(lb_table_test)
+        else:
+            train[column] = trainInput[column]
+            test[column] = testInput[column]
+    train = train.fillna(0)
+    test = test.fillna(0)
 
     trainTarget = train["target"]
-    trainFeatureNames = list(train.columns[3:])
+    trainFeatureNames = list(train.columns[2:])
     trainFeatures = train[trainFeatureNames]
     testTarget = test["target"]
-    testFeatureNames = list(test.columns[3:])
+    testFeatureNames = list(test.columns[2:])
     testFeatures = test[testFeatureNames]
     #TODO catagorical columns should be converted to catagorical type
     dataTree = tree.DecisionTreeClassifier(min_samples_split = 20, max_depth = 15, random_state = 69)
@@ -75,7 +100,7 @@ def main():
     print "\nNow using RandomForestClassifier as a model"
     randomForest =  RandomForestClassifier(n_estimators = 2, random_state = 69)
     randomForest.fit(trainFeatures, trainTarget);
-    predictionTest = randomForest.predict(test[list(test.columns[3:])])
+    predictionTest = randomForest.predict(test[list(test.columns[2:])])
     predictionTrain = randomForest.predict(trainFeatures)
 
     #Answer to question 2.i

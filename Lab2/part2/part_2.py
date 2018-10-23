@@ -10,21 +10,22 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import MinMaxScaler
+
 def main():
     #load data
     train = pd.read_csv('part2Train.csv', header=None)
     test = pd.read_csv('part2Test.csv', header=None)
-    scaler = MinMaxScaler()
-    target = train[4]
-    validation = test[4]
+
     #scale it
+    scaler = MinMaxScaler()
     scaledTrain = scaler.fit_transform(train[list(train.columns[:4])])
     scaledTest = scaler.fit_transform(test[list(train.columns[:4])])
+
+    #assign features and targets
     trainFeatures = pd.DataFrame(scaledTrain)
     testFeatures = pd.DataFrame(scaledTest)
-
-    # testFeatures = test[list(test.columns[:4])]
-    # trainFeatures = train[list(train.columns[:4])]
+    target = train[4]
+    validation = test[4]
     #decision tree
     dataTree = tree.DecisionTreeClassifier(random_state=69)
     dataTree = dataTree.fit(trainFeatures, target)

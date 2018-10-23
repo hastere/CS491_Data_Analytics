@@ -59,10 +59,11 @@ def main():
     print "\nTest set confusion matrix"
     print testConfusion
     #Answer to question 1.ii
+    #TODO see about spliting scores out by class
     print "\nTraining set prediction, recal, and f-score"
     print precision_recall_fscore_support(trainTarget, trainPrediction, average='binary')[:3]
     #Answer to question 1.iii
-    print "\nTest set prediction, recall, and f-score"
+    print "\nTest set precision, recall, and f-score"
     print precision_recall_fscore_support(testTarget, testPrediction, average='binary')[:3]
 
     #Answer to question 1.iv
@@ -98,7 +99,7 @@ def main():
     print "performance"
 
     print "\nNow using RandomForestClassifier as a model"
-    randomForest =  RandomForestClassifier(n_estimators = 2, random_state = 69)
+    randomForest =  RandomForestClassifier(min_samples_split = 20, max_depth = 15, n_estimators = 500 , random_state = 69)
     randomForest.fit(trainFeatures, trainTarget);
     predictionTest = randomForest.predict(test[list(test.columns[2:])])
     predictionTrain = randomForest.predict(trainFeatures)

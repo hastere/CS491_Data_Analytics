@@ -1,0 +1,32 @@
+Team ID: 
+Contribution of Member1:
+-	Contribution 1
+-	Contribution 2
+-	
+Contribution of Member2:
+-	Contribution 1
+-	Contribution 2
+
+Task 1: 
+•	For each test image, provide top 3 predicted classes and their confidence levels. 
+	-> For 1. Jpg,  (joystick,0.7) (pencil, 0.2) (pen, 0.1)
+       For 2. Jpg,  ..
+
+	
+•	Did you find any discrepancies between the predicted class and the actual class? Provide your observations.
+   -> provide your answer here
+   
+
+Task 2: 
+•	How many of the test images were correctly classified?
+    Guardrail_Barriers : x out of 10 test images were correctly classifed
+	RumbleStrip : x out of 10 test images were correctly classifed
+	
+
+Task 3: 
+•	For test image 1, which model has the better detection result? Were the models able to detect all the people in the image?
+    -> provide your answer here
+	
+	
+•	In test image 2, which model was able to detect the laptop? What might be the reason the other model could not detect the laptop?
+    -> provide your answer here
